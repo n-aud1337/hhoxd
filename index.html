@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title></title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Courier New', monospace;
+      color: #fff600;
+    }
+
+    video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    .container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 1;
+    }
+
+    .glitch {
+      font-size: 3rem;
+      font-weight: bold;
+      animation: glitch 1s infinite;
+    }
+
+    @keyframes glitch {
+      0% { text-shadow: 2px 2px red; }
+      20% { text-shadow: -2px -2px cyan; }
+      40% { text-shadow: 2px -2px lime; }
+      60% { text-shadow: -2px 2px magenta; }
+      80% { text-shadow: 2px 2px blue; }
+      100% { text-shadow: 0px 0px yellow; }
+    }
+
+    .typewriter {
+      overflow: hidden;
+      border-right: .15em solid yellow;
+      white-space: nowrap;
+      letter-spacing: .15em;
+      animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
+    }
+
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 100% }
+    }
+
+    @keyframes blink-caret {
+      from, to { border-color: transparent }
+      50% { border-color: yellow }
+    }
+
+    .info {
+      margin-top: 20px;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Video -->
+  <iframe 
+    id="bgVideo"
+    src="https://youtu.be/BnG6AXPNbco?si=1o4CDmAj6GeSiqYz"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen
+    style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; border: none;">
+  </iframe>
+
+  <script>
+    document.addEventListener("click", () => {
+      const iframe = document.getElementById("bgVideo");
+      const currentSrc = iframe.src;
+      iframe.src = currentSrc.replace('mute=1', 'mute=0');
+    });
+    
+    document.addEventListener("keydown", () => {
+      const iframe = document.getElementById("bgVideo");
+      const currentSrc = iframe.src;
+      iframe.src = currentSrc.replace('mute=1', 'mute=0');
+    });
+  </script>
+
+  <div class="container">
+    <div class="glitch" id="typingText"></div>
+    <div class="info" id="ipInfo">Fetching info...</div>
+  </div>
+
+  <script>
+    const messages = [
+      "hhoxd wUw",
+      "ce faci domnisoru?",
+      "vezi ce faci pe serveru meu da?"
+    ];
+    
+    let currentMessageIndex = 0;
+    let currentCharIndex = 0;
+    let isDeleting = false;
+    let typingSpeed = 100;
+    let deletingSpeed = 50;
+    let pauseTime = 2000;
+    
+    function typeText() {
+      const element = document.getElementById("typingText");
+      const currentMessage = messages[currentMessageIndex];
+      
+      if (isDeleting) {
+
+        element.textContent = currentMessage.substring(0, currentCharIndex - 1);
+        currentCharIndex--;
+        
+        if (currentCharIndex === 0) {
+          isDeleting = false;
+          currentMessageIndex = (currentMessageIndex + 1) % messages.length;
+          setTimeout(typeText, 500);
+          return;
+        }
+        
+        setTimeout(typeText, deletingSpeed);
+      } else {
+
+        element.textContent = currentMessage.substring(0, currentCharIndex + 1);
+        currentCharIndex++;
+        
+        if (currentCharIndex === currentMessage.length) {
+          isDeleting = true;
+          setTimeout(typeText, pauseTime);
+          return;
+        }
+        
+        setTimeout(typeText, typingSpeed);
+      }
+    }
+    
+    setTimeout(typeText, 1000);
+  </script>
+
+  <script>
+    fetch("https://api.db-ip.com/v2/free/self")
+      .then(res => res.json())
+      .then(data => {
+        const info = `
+          IP: ${data.ipAddress}<br>
+          Country: ${data.countryName}<br>
+          City: ${data.city || 'Unknown'}<br>
+          ISP: Unknown
+        `;
+        document.getElementById("ipInfo").innerHTML = info;
+      })
+      .catch(() => {
+        document.getElementById("ipInfo").innerText = "Could not load IP info.";
+      });
+  </script>
+
+</body>
+</html>
